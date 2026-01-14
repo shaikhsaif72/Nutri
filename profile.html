@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - NutriTrack Pro{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Profile Header -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="display-1 mb-3">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <h3>{{ current_user.username }}</h3>
+                    <p class="text-muted">{{ current_user.email }}</p>
+                    <small class="text-muted">
+                        Member since {{ current_user.created_at.strftime('%B %Y') }}
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Streak Stats -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-fire"></i> Your Progress
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h2 class="text-success">{{ current_user.current_streak }}</h2>
+                            <small class="text-muted">Current Streak</small>
+                        </div>
+                        <div class="col-6">
+                            <h2 class="text-warning">{{ current_user.longest_streak }}</h2>
+                            <small class="text-muted">Longest Streak</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Profile Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-gear-fill"></i> Profile Settings
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <h6 class="text-muted mb-3">Basic Information</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="age" class="form-label">Age</label>
+                                <input type="number" class="form-control" id="age" name="age" value="{{ current_user.age or 25 }}" required min="13" max="120">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="male" {% if current_user.gender == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if current_user.gender == 'female' %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="weight" class="form-label">Weight (kg)</label>
+                                <input type="number" class="form-control" id="weight" name="weight" value="{{ current_user.weight or 70 }}" required min="30" max="300" step="0.1">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="height" class="form-label">Height (cm)</label>
+                                <input type="number" class="form-control" id="height" name="height" value="{{ current_user.height or 170 }}" required min="100" max="250">
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h6 class="text-muted mb-3">Activity & Goals</h6>
+                        
+                        <div class="mb-3">
+                            <label for="activity_level" class="form-label">Activity Level</label>
+                            <select class="form-select" id="activity_level" name="activity_level" required>
+                                <option value="sedentary" {% if current_user.activity_level == 'sedentary' %}selected{% endif %}>
+                                    Sedentary (little or no exercise)
+                                </option>
+                                <option value="light" {% if current_user.activity_level == 'light' %}selected{% endif %}>
+                                    Light (exercise 1-3 days/week)
+                                </option>
+                                <option value="moderate" {% if current_user.activity_level == 'moderate' %}selected{% endif %}>
+                                    Moderate (exercise 3-5 days/week)
+                                </option>
+                                <option value="active" {% if current_user.activity_level == 'active' %}selected{% endif %}>
+                                    Active (exercise 6-7 days/week)
+                                </option>
+                                <option value="very_active" {% if current_user.activity_level == 'very_active' %}selected{% endif %}>
+                                    Very Active (intense exercise daily)
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="goal" class="form-label">Fitness Goal</label>
+                            <select class="form-select" id="goal" name="goal" required>
+                                <option value="loss" {% if current_user.goal == 'loss' %}selected{% endif %}>
+                                    Weight Loss (0.5 kg/week deficit)
+                                </option>
+                                <option value="gain" {% if current_user.goal == 'gain' %}selected{% endif %}>
+                                    Muscle Gain (lean bulk)
+                                </option>
+                                <option value="maintain" {% if current_user.goal == 'maintain' %}selected{% endif %}>
+                                    Maintain Weight
+                                </option>
+                                <option value="recomp" {% if current_user.goal == 'recomp' %}selected{% endif %}>
+                                    Body Recomposition
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <strong>Note:</strong> Calorie and macro targets will be automatically calculated using the Mifflin-St Jeor equation based on your profile.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-check-circle-fill"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Current Targets -->
+            {% if current_user.daily_calorie_target %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-bullseye"></i> Your Daily Targets
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-3 mb-3">
+                            <h4 class="text-success">{{ current_user.daily_calorie_target }}</h4>
+                            <small class="text-muted">Calories</small>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <h4 class="text-warning">{{ current_user.protein_target }}g</h4>
+                            <small class="text-muted">Protein</small>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <h4 class="text-info">{{ current_user.carbs_target }}g</h4>
+                            <small class="text-muted">Carbs</small>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <h4 style="color: #9b59b6;">{{ current_user.fat_target }}g</h4>
+                            <small class="text-muted">Fat</small>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="text-center text-muted">
+                        <small>
+                            <i class="bi bi-calculator"></i>
+                            Calculated using your profile data
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Account Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-shield-lock-fill"></i> Account
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>Email</strong>
+                            <small class="text-muted d-block">{{ current_user.email }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Last Login</strong>
+                            <small class="text-muted d-block">
+                                {% if current_user.last_login %}
+                                {{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') }}
+                                {% else %}
+                                Never
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
