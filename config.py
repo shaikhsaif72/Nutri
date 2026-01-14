@@ -10,10 +10,26 @@ class Config:
     # Security
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production-2024'
     
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f'sqlite:///{os.path.join(BASE_DIR, "nutritrack.db")}'
+    # ============================================================
+    # DATABASE CONFIGURATION (UPDATED FOR RENDER)
+    # ============================================================
+    # Render humein 'postgres://' deta hai, par SQLAlchemy ko 'postgresql://' chahiye hota hai.
+    # Hum yahan check kar rahe hain aur fix kar rahe hain.
+    
+    database_url = os.environ.get('DATABASE_URL')
+    
+    if database_url and database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+        
+    # Agar cloud URL mila toh wo use karega, nahi toh local sqlite use karega
+    SQLALCHEMY_DATABASE_URI = database_url or f'sqlite:///{os.path.join(BASE_DIR, "nutritrack.db")}'
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Set True for SQL debugging
+    
+    # ============================================================
+    # SESSION & APP SETTINGS
+    # ============================================================
     
     # Session
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
@@ -25,6 +41,5 @@ class Config:
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max upload
     JSON_SORT_KEYS = False
     
-    # --- FIX YAHAN HAI: NAYI DETAILED FILE KA PATH ---
-    # Hum 'Data' folder ke andar 'nutrition_data.csv' use kar rahe hain
+    # Data Path
     NUTRITION_CSV_PATH = os.path.join(BASE_DIR, 'Data', 'nutrition_data.csv')
