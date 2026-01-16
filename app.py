@@ -3,6 +3,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from datetime import datetime, date
 from io import BytesIO
 import os
+import sys
 import google.generativeai as genai
 import markdown
 from config import Config
@@ -535,4 +536,5 @@ if __name__ == '__main__':
     init_database()
 
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
