@@ -52,7 +52,7 @@ def chat_with_ai():
         )
 
         # 3. AI Model Load Karo
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # 4. Chat Start Karo
         # Pehle hum system context bhejte hain, fir user ka sawal
@@ -533,4 +533,5 @@ def internal_error(error):
 
 if __name__ == '__main__':
     init_database()
+
     app.run(debug=True, host='0.0.0.0', port=5000)
