@@ -5,6 +5,7 @@ gunicorn
 psycopg2-binary
 pandas
 google-generativeai==0.7.2
+grpcio
 markdown
 python-dotenv
 requests
