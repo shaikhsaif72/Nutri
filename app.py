@@ -27,47 +27,43 @@ genai.configure(api_key=os.environ.get('GOOGLE_API_KEY'))
 @app.route('/api/chat', methods=['POST'])
 @login_required
 def chat_with_ai():
-    """
-    Ye route frontend se message lega, user ka health data add karega,
-    aur AI se personalized jawab lekar wapas bhejega.
-    """
-    data = request.get_json()
-    user_message = data.get('message', '')
+    # Debug: Confirm karo request aayi hai
+    print("📢 CHAT REQUEST RECEIVED!", file=sys.stderr)
     
-    if not user_message:
-        return jsonify({'error': 'No message provided'}), 400
-
     try:
-        # 2. Context Create Karo (Taaki AI ko pata ho wo kisse baat kar raha hai)
-        # Hum current_user ka data use kar rahe hain jo database se aa raha hai
-        context = (
-            f"You are a friendly Nutritionist AI assistant named 'NutriCoach'. "
-            f"The user's profile details are: "
-            f"Current Weight: {current_user.weight}kg, "
-            f"Height: {current_user.height}cm, "
-            f"Goal: {current_user.goal} (Loss/Gain/Maintain), "
-            f"Daily Calorie Target: {current_user.daily_calorie_target} kcal, "
-            f"Diet Preference: {current_user.activity_level} activity level. "
-            f"Answer the user's question briefly (under 100 words) and strictly related to their health data. "
-            f"Use emojis to be friendly."
-        )
+        data = request.json
+        user_message = data.get('message', '')
+        
+        # User ka data fetch karo
+        user_profile = User.query.get(current_user.id)
+        
+        # Prompt banao
+        prompt = f"""
+        User Profile:
+        Age: {user_profile.age}, Gender: {user_profile.gender}
+        Goal: {user_profile.goal}
+        Activity Level: {user_profile.activity_level}
+        Current Weight: {user_profile.weight}kg, Height: {user_profile.height}cm
+        Diet Preference: {user_profile.diet_preference}
 
-        # 3. AI Model Load Karo
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        User Question: {user_message}
         
-        # 4. Chat Start Karo
-        # Pehle hum system context bhejte hain, fir user ka sawal
-        chat = model.start_chat(history=[])
-        response = chat.send_message(f"System Context: {context}\n\nUser Question: {user_message}")
+        Answer as a nutritionist. Keep it short.
+        """
         
-        # 5. Markdown ko HTML mein badlo (Taaki bullet points acche dikhe)
-        bot_reply = markdown.markdown(response.text)
+        # AI ko bhejo
+        print(f"🤖 SENDING TO AI MODEL: {prompt[:50]}...", file=sys.stderr)
+        response = model.generate_content(prompt)
         
-        return jsonify({'reply': bot_reply})
-        
+        print("✅ AI RESPONSE RECEIVED!", file=sys.stderr)
+        return jsonify({'response': response.text})
+
     except Exception as e:
-       print(f"🔥 ERROR DETAIL: {e}", flush=True)
-        # Agar API key galat hai ya limit khatam ho gayi to ye error dikhega
+        # Error ko CHEEKH kar batao
+        print(f"🔥 CRITICAL ERROR: {str(e)}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr) # Pura details print karega
+        
         return jsonify({'error': 'AI is currently offline. Please check API Key.'}), 500
     
 @app.context_processor
@@ -536,5 +532,6 @@ if __name__ == '__main__':
     init_database()
 
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
