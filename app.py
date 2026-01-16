@@ -65,7 +65,7 @@ def chat_with_ai():
         return jsonify({'reply': bot_reply})
         
     except Exception as e:
-        print(f"AI Error: {e}")
+       print(f"🔥 ERROR DETAIL: {e}", flush=True)
         # Agar API key galat hai ya limit khatam ho gayi to ye error dikhega
         return jsonify({'error': 'AI is currently offline. Please check API Key.'}), 500
     
@@ -535,3 +535,4 @@ if __name__ == '__main__':
     init_database()
 
     app.run(debug=True, host='0.0.0.0', port=5000)
+
