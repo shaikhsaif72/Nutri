@@ -42,4 +42,4 @@ class Config:
     JSON_SORT_KEYS = False
     
     # Data Path
-    NUTRITION_CSV_PATH = os.path.join(BASE_DIR, 'Data', 'nutrition_data.csv')
+NUTRITION_CSV_PATH = os.path.join(BASE_DIR, 'nutrition_data.csv')
